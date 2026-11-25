@@ -1,0 +1,13 @@
+{
+  "name": "kbu-aid-contest-judging",
+  "version": "1.0.0",
+  "private": true,
+  "description": "2026년도 지능형 업무 프로세스 자동화 공모전 온라인 심사평가 시스템 (AID사업단)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

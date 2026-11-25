@@ -1,0 +1,15 @@
+body { font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -0.015em; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+.seg { border: 1px solid #cbd5e1; border-radius: .5rem; padding: .55rem .5rem; font-size: .8rem; font-weight: 600; color: #475569; background: #fff; text-align: center; cursor: pointer; }
+.seg.on { border-color: #4f46e5; background: #eef2ff; color: #4338ca; }
+.tab { padding: .6rem .9rem; font-size: .8rem; font-weight: 700; color: #64748b; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab.on { color: #4338ca; border-color: #4f46e5; }
+input[type=range] { accent-color: #4f46e5; }
+.locked input, .locked textarea, .locked button.pick { pointer-events: none; }
+.pick { border: 1px solid #cbd5e1; border-radius: .5rem; padding: .35rem .7rem; font-size: .78rem; font-weight: 700; color: #475569; background: #fff; }
+.pick.yes { border-color: #059669; background: #ecfdf5; color: #047857; }
+.pick.no { border-color: #e11d48; background: #fff1f2; color: #be123c; }

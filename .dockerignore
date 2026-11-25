@@ -1,0 +1,7 @@
+data
+seed
+.env
+*.md
+*.zip
+apps-script
+node_modules

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>공모전 심사 관리</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/style.css"/>
+<script src="/criteria.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+<div id="login" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <form id="login-form" class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+    <h2 class="font-bold text-lg">심사 관리자</h2>
+    <input id="pw" type="password" required class="w-full rounded-lg border border-slate-300 py-2.5 px-3 text-sm" placeholder="관리자 비밀번호"/>
+    <p id="login-error" class="hidden text-xs font-semibold text-rose-600"></p>
+    <button class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold">들어가기</button>
+  </form>
+</div>
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+  <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-white font-extrabold">AD</div>
+      <div><h1 class="font-bold text-sm sm:text-base">공모전 심사 관리</h1><p class="text-xs text-slate-500">AID사업단 · 출품작·심사현황·결과 집계</p></div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <a href="/" target="_blank" class="px-3 py-1.5 rounded-lg border border-slate-300 font-semibold hover:bg-slate-50">심사위원 화면 ↗</a>
+      <a id="backup" class="px-3 py-1.5 rounded-lg border border-slate-300 font-semibold hover:bg-slate-50 cursor-pointer">전체 백업(JSON)</a>
+    </div>
+  </div>
+  <nav id="tabs" class="px-4 sm:px-6 flex gap-1 overflow-x-auto border-t border-slate-100"></nav>
+</header>
+
+<main class="px-4 sm:px-6 py-6 space-y-6">
+  <!-- 출품작 -->
+  <section data-pane="entries" class="space-y-4">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-bold">출품작 관리</h2>
+        <div class="flex gap-2">
+          <button id="add-row" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold hover:bg-slate-50">+ 출품작 추가</button>
+          <button id="save-entries" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">저장</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500">심사 구분 열의 체크 = 그 심사의 대상 출품작(첫 심사는 기본 체크, 이후 심사는 결과 집계의 "진출팀 지정" 또는 직접 체크). 자료 링크는 한 줄에 <code>이름|https://주소</code> 형식으로 적습니다. 저장해야 심사위원 화면에 반영됩니다.</p>
+      <div class="rounded-lg border border-indigo-200 bg-indigo-50/50 p-3 space-y-2 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <b class="text-indigo-800 mr-1">구글 폼 응답 불러오기</b>
+          <button id="imp-form" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold disabled:opacity-40">구글 폼에서 불러오기</button>
+          <label class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold hover:bg-slate-50 cursor-pointer">CSV 파일로 불러오기<input id="imp-csv" type="file" accept=".csv,text/csv" class="hidden"/></label>
+          <label class="flex items-center gap-1 text-slate-600"><input id="imp-late" type="checkbox"/> 마감 후 제출도 포함</label>
+        </div>
+        <p id="imp-hint" class="text-slate-500"></p>
+        <div id="imp-preview" class="hidden space-y-2"></div>
+      </div>
+      <details class="text-xs">
+        <summary class="cursor-pointer font-semibold text-indigo-700">구글 시트에서 한꺼번에 붙여넣기</summary>
+        <div class="mt-2 space-y-2">
+          <p class="text-slate-500">열 순서: 분야(Lv1/Lv2/Lv3 또는 아이디어/해커톤/PoC) ⇥ 결과물명 ⇥ 대표자 ⇥ 학과 ⇥ 지도교수 ⇥ 자료 링크(여러 개는 쉼표로 구분). 첫 줄이 제목 행이면 자동으로 건너뜁니다.</p>
+          <textarea id="paste" rows="5" class="w-full rounded-lg border border-slate-300 p-2 font-mono text-xs" placeholder="해커톤	민원 자동 분류 시스템	홍길동	소프트웨어융합학과	김교수	https://drive.google.com/..."></textarea>
+          <button id="paste-add" class="px-3 py-2 rounded-lg border border-slate-300 font-semibold hover:bg-slate-50">목록에 추가</button>
+        </div>
+      </details>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+      <table class="min-w-full text-xs">
+        <thead id="entry-head" class="bg-slate-50 text-slate-500"></thead>
+        <tbody id="entry-rows" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 심사 현황 -->
+  <section data-pane="status" class="hidden space-y-4">
+    <div class="flex flex-wrap gap-2 items-center"><h2 class="font-bold mr-2">심사 현황</h2><div id="status-round" class="flex gap-2"></div><button id="refresh" class="text-xs underline text-slate-500">새로고침</button></div>
+    <div id="status-body" class="space-y-4"></div>
+  </section>
+
+  <!-- 결과 -->
+  <section data-pane="results" class="hidden space-y-4">
+    <div class="flex flex-wrap gap-2 items-center">
+      <h2 class="font-bold mr-2">결과 집계</h2><div id="result-round" class="flex gap-2"></div>
+      <a id="csv" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold hover:bg-slate-50 cursor-pointer">CSV 내려받기</a>
+      <button id="advance" class="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">다음 심사 진출팀 지정</button>
+    </div>
+    <p class="text-xs text-slate-500">평균은 회피한 위원을 빼고 계산합니다. 동점은 분야별 동점자 처리 순서(아이디어: 문제 정의 → 창의성, 해커톤: 실제 구현·작동성 → 업무개선 효과, PoC: 업무개선 효과 → 실제 구현·작동성)로 정합니다. 2차 해커톤·PoC는 작동 검증 통과(채점 위원 과반이 4개 항목 모두 통과로 판정)한 작품만 수상합니다. 같은 결과물이 2개 분야에서 수상권이면 점수가 높은 분야에서만 수상하므로 이 경우는 직접 확인하세요.</p>
+    <div id="result-body" class="space-y-4"></div>
+  </section>
+
+  <!-- 설정 -->
+  <section data-pane="settings" class="hidden space-y-6">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3 max-w-xl">
+      <h2 class="font-bold">심사위원 명단</h2>
+      <p class="text-xs text-slate-500">한 줄에 한 명씩 적습니다. 명단을 저장하면 심사위원 접속 화면에서 성함을 목록으로 고르며, 명단에 있는 성함만 접속할 수 있습니다. 비워 두면 접속 코드를 아는 사람이 성함을 직접 입력합니다.</p>
+      <textarea id="judges" rows="5" class="w-full rounded-lg border border-slate-300 p-2 text-sm" placeholder="홍길동&#10;김평가&#10;이심사"></textarea>
+      <button id="save-judges" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">명단 저장</button>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="font-bold">심사 구분</h2>
+        <div class="flex gap-2">
+          <button id="add-round" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold hover:bg-slate-50">+ 심사 구분 추가</button>
+          <button id="save-rounds" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">심사 구분 저장</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500">위에서부터 진행 순서입니다. 평가 방식: "기획안 서면"은 해커톤·PoC의 구현 항목을 "구현 계획의 실현가능성"으로, "발표·시연"은 "실제 구현·작동성"으로 평가합니다. 작동 검증을 켜면 해커톤·PoC 심사표에 [서식 3] 작동 검증표가 붙고, 검증 미통과작은 진출·수상에서 빠집니다. 제출된 심사표가 있는 심사 구분은 삭제할 수 없습니다.</p>
+      <div class="overflow-x-auto"><table class="min-w-full text-xs">
+        <thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">순서</th><th class="p-2 text-left">이름</th><th class="p-2 text-left">일자</th><th class="p-2">평가 방식</th><th class="p-2">작동 검증</th><th class="p-2">결과 처리</th><th class="p-2">선발 수(분야별)</th><th class="p-2"></th></tr></thead>
+        <tbody id="round-rows" class="divide-y divide-slate-100"></tbody>
+      </table></div>
+    </div>
+  </section>
+</main>
+
+<script src="/admin.js"></script>
+</body>
+</html>

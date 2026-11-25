@@ -1,0 +1,5 @@
+data/
+.env
+seed/*.json
+*.zip
+node_modules/
