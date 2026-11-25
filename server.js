@@ -277,11 +277,15 @@ function normalizeRecord(rec) {
   if (titleIsFile) title = '';
   // 팀원 명단에서 학번이 없는 줄(대표자 제외) = 지도교수로 추정
   const advisorLine = col('팀원명단').split(/\r?\n/).map((s) => s.trim())
-    .filter((s) => s && !/\d{6,}/.test(s)).map((s) => s.split(/[\/,(]/)[0].trim()).find((n) => n && n !== leader) || '';
+    .filter((s) => s && !/\d{6,}/.test(s))
+    .map((s) => s.replace(/[「」『』"']/g, '').replace(/^\s*지도\s*교수\s*[:：]?\s*/, '').split(/[\/,(]/)[0].replace(/\s*교수(님)?\s*$/, '').trim())
+    .find((n) => n && n !== leader) || '';
+  const dept = col('대표자학과');
   const urls = (s) => s.match(/https?:\/\/[^\s,]+/g) || [];
   return {
     at: parseTime(col('타임스탬프')), level: lv[0], title, titleIsFile, leader,
-    dept: str(col('대표자학과'), 80), advisor: str(advisorLine, 80),
+    dept: /\d{6,}/.test(dept) ? '' : str(dept, 80),   // 학과 칸에 학번을 적은 경우 버림
+    advisor: str(advisorLine, 80),
     files: [...new Set([...urls(col('제출파일')), ...urls(col('대용량'))])],
   };
 }

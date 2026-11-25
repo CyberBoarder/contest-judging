@@ -58,6 +58,7 @@ function doGet(e) {
         x = x.split(/\r?\n/).filter(function (s) { return s.trim() && !/\d{6,}/.test(s); }).join('\n');
       }
       if (c[0] === '결과물' && /\d{8,}/.test(x)) x = ''; // 파일명(학번 포함)이 입력된 경우
+      if (c[0] === '대표자학과' && /\d{6,}/.test(x)) x = ''; // 학과 칸에 학번을 적은 경우
       o[c[1]] = x;
     });
     rows.push(o);
