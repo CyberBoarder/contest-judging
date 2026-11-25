@@ -277,9 +277,9 @@ function normalizeRecord(rec) {
   if (titleIsFile) title = '';
   // 팀원 명단에서 학번이 없는 줄(대표자 제외) = 지도교수로 추정
   const advisorLine = col('팀원명단').split(/\r?\n/).map((s) => s.trim())
-    .filter((s) => s && !/\d{6,}/.test(s))
+    .filter((s) => s && !/\d{6,}/.test(s) && !/01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/.test(s) && !/@/.test(s))
     .map((s) => s.replace(/[「」『』"']/g, '').replace(/^\s*지도\s*교수\s*[:：]?\s*/, '').split(/[\/,(]/)[0].replace(/\s*교수(님)?\s*$/, '').trim())
-    .find((n) => n && n !== leader) || '';
+    .find((n) => n && n !== leader && !/\d/.test(n)) || '';
   const dept = col('대표자학과');
   const urls = (s) => s.match(/https?:\/\/[^\s,]+/g) || [];
   return {

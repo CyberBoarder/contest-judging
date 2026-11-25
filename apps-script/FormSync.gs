@@ -16,7 +16,8 @@
  * SYNC_KEY가 맞지 않으면 아무것도 보내지 않습니다.
  */
 
-var SHEET_NAME = ''; // 비우면 첫 번째 시트(폼 응답 시트)
+var SPREADSHEET_ID = ''; // 응답 시트에 붙인 경우 비워 둠. 별도(독립) 프로젝트로 만든 경우 응답 시트 주소의 /d/와 /edit 사이 ID
+var SHEET_NAME = '';     // 비우면 첫 번째 시트(폼 응답 시트)
 
 // [시트 제목의 앞부분(공백 무시), 보낼 때 쓰는 제목]
 var COLUMNS = [
@@ -34,7 +35,7 @@ function doGet(e) {
   var key = PropertiesService.getScriptProperties().getProperty('SYNC_KEY');
   if (!key || !e || !e.parameter || e.parameter.key !== key) return json_({ error: 'unauthorized' });
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   var sh = SHEET_NAME ? ss.getSheetByName(SHEET_NAME) : ss.getSheets()[0];
   var values = sh.getDataRange().getValues();
   if (values.length < 2) return json_({ ok: true, rows: [] });
@@ -55,7 +56,7 @@ function doGet(e) {
       if (x instanceof Date) x = x.toISOString();
       x = String(x == null ? '' : x);
       if (c[0] === '팀원명단') { // 학번이 들어간 줄은 보내지 않음
-        x = x.split(/\r?\n/).filter(function (s) { return s.trim() && !/\d{6,}/.test(s); }).join('\n');
+        x = x.split(/\r?\n/).filter(function (s) { return s.trim() && !/\d{6,}/.test(s) && !/01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/.test(s) && !/@/.test(s); }).join('\n');
       }
       if (c[0] === '결과물' && /\d{8,}/.test(x)) x = ''; // 파일명(학번 포함)이 입력된 경우
       if (c[0] === '대표자학과' && /\d{6,}/.test(x)) x = ''; // 학과 칸에 학번을 적은 경우
